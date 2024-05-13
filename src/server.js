@@ -1,7 +1,6 @@
 import Hapi from '@hapi/hapi'
 import {logger} from "./app/logging.js";
 import {apiRoutes} from "./route/api.js";
-import {errorMiddleware} from "./middleware/error-middleware.js";
 
 const init = async () => {
 
@@ -9,8 +8,6 @@ const init = async () => {
         port: 9000,
         host: 'localhost'
     });
-
-    server.ext('onPreResponse', errorMiddleware);
 
     await server.route(apiRoutes);
 

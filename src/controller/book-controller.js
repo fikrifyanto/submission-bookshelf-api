@@ -1,4 +1,5 @@
 import bookService from "../service/book-service.js";
+import Boom from '@hapi/boom'
 
 const store = async (request, h) => {
     try {
@@ -13,7 +14,7 @@ const store = async (request, h) => {
             }
         }).code(201);
     } catch (error) {
-        throw error;
+        return h.response({ status: 'fail', message: error.message }).code(error.status);
     }
 };
 
@@ -29,7 +30,7 @@ const list = async (request, h) => {
             }
         }).code(200);
     } catch (error) {
-        throw error;
+        return h.response({ status: 'fail', message: error.message }).code(error.status);
     }
 };
 
@@ -45,7 +46,7 @@ const show = async (request, h) => {
             }
         }).code(200);
     } catch (error) {
-        throw error;
+        return h.response({ status: 'fail', message: error.message }).code(error.status);
     }
 };
 
@@ -62,7 +63,7 @@ const update = async (request, h) => {
             message: "Buku berhasil diperbarui"
         }).code(200);
     } catch (error) {
-        throw error;
+        return h.response({ status: 'fail', message: error.message }).code(error.status);
     }
 };
 
@@ -76,7 +77,7 @@ const destroy = async (request, h) => {
             message: "Buku berhasil dihapus"
         }).code(200);
     } catch (error) {
-        throw error;
+        return h.response({ status: 'fail', message: error.message }).code(error.status);
     }
 };
 
