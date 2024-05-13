@@ -1,83 +1,84 @@
 import bookService from "../service/book-service.js";
 
-const store = async (req, res, next) => {
+const store = async (request, h) => {
     try {
-        const request = req.body;
-        const result = await bookService.store(request);
-        res.status(201).json({
+        const requestData = request.payload;
+        const result = await bookService.store(requestData);
+
+        return h.response({
             status: "success",
             message: "Buku berhasil ditambahkan",
             data: {
                 bookId: result.id
             }
-        })
-    } catch (e) {
-        next(e);
+        }).code(201);
+    } catch (error) {
+        throw error;
     }
-}
+};
 
-const list = async (req, res, next) => {
+const list = async (request, h) => {
     try {
-        const name = req.query.name;
-        const reading = req.query.reading;
-        const finished = req.query.finished;
-
+        const { name, reading, finished } = request.query;
         const result = await bookService.list(name, reading, finished);
-        res.status(200).json({
+
+        return h.response({
             status: "success",
             data: {
                 books: result
             }
-        })
-    } catch (e) {
-        next(e);
+        }).code(200);
+    } catch (error) {
+        throw error;
     }
-}
+};
 
-const show = async (req, res, next) => {
+const show = async (request, h) => {
     try {
-        const bookId = req.params.bookId;
+        const { bookId } = request.params;
         const result = await bookService.show(bookId);
-        res.status(200).json({
+
+        return h.response({
             status: "success",
             data: {
                 book: result
             }
-        })
-    } catch (e) {
-        next(e);
+        }).code(200);
+    } catch (error) {
+        throw error;
     }
-}
+};
 
-const update = async (req, res, next) => {
+const update = async (request, h) => {
     try {
-        const bookId = req.params.bookId;
-        const request = req.body;
-        request.id = bookId;
+        const { bookId } = request.params;
+        const requestData = request.payload;
+        requestData.id = bookId;
 
-        await bookService.update(request);
-        res.status(200).json({
+        await bookService.update(requestData);
+
+        return h.response({
             status: "success",
             message: "Buku berhasil diperbarui"
-        })
-    } catch (e) {
-        next(e);
+        }).code(200);
+    } catch (error) {
+        throw error;
     }
-}
+};
 
-const destroy = async (req, res, next) => {
+const destroy = async (request, h) => {
     try {
-        const bookId = req.params.bookId;
-
+        const { bookId } = request.params;
         await bookService.destroy(bookId);
-        res.status(200).json({
+
+        return h.response({
             status: "success",
             message: "Buku berhasil dihapus"
-        })
-    } catch (e) {
-        next(e);
+        }).code(200);
+    } catch (error) {
+        throw error;
     }
-}
+};
 
 export default {
     store,
@@ -85,4 +86,4 @@ export default {
     show,
     update,
     destroy
-}
+};

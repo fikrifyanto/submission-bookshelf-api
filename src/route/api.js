@@ -1,12 +1,32 @@
-import express from "express";
 import bookController from "../controller/book-controller.js";
 
-const app = new express.Router();
+const apiRoutes = [
+    {
+        method: 'GET',
+        path: '/books',
+        handler: bookController.list
+    },
+    {
+        method: 'POST',
+        path: '/books',
+        handler: bookController.store
+    },
+    {
+        method: 'GET',
+        path: '/books/{bookId}',
+        handler: bookController.show
+    },
+    {
+        method: 'PUT',
+        path: '/books/{bookId}',
+        handler: bookController.update
+    },
+    {
+        method: 'DELETE',
+        path: '/books/{bookId}',
+        handler: bookController.destroy
+    }
+];
 
-app.post('/books', bookController.store);
-app.get('/books', bookController.list);
-app.get('/books/:bookId', bookController.show);
-app.put('/books/:bookId', bookController.update);
-app.delete('/books/:bookId', bookController.destroy);
+export { apiRoutes }
 
-export { app }

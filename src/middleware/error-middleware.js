@@ -1,22 +1,18 @@
 import {ResponseError} from "../error/response-error.js";
+import {logger} from "../app/logging.js";
 
-const errorMiddleware = async (err, req, res, next) => {
-    if (!err) {
-        next();
-        return;
+const errorMiddleware = (request, h) => {
+    const response = request.response;
+
+    if (response instanceof ResponseError) {
+        console.log(response)
+        return h.response({
+            status: 'fail',
+            message: response.message
+        }).code(response.statusCode);
     }
 
-    if (err instanceof ResponseError) {
-        res.status(err.status).json({
-            status: "fail",
-            message: err.message
-        }).end();
-    }  else {
-        res.status(500).json({
-            status: "fail",
-            message: err.message
-        }).end();
-    }
+    return h.continue;
 }
 
 export {
