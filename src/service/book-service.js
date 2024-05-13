@@ -1,120 +1,111 @@
 import {validate} from "../validation/validation.js";
 import {
-    storeBookValidation,
+    deleteBookValidation,
     showBookValidation,
-    updateBookValidation, deleteBookValidation
+    storeBookValidation,
+    updateBookValidation
 } from "../validation/book-validation.js";
-import {prismaClient} from "../app/database.js";
 import {ResponseError} from "../error/response-error.js";
+import { nanoid } from 'nanoid'
+
+let books = []
 
 const store = async (request) => {
     const book = validate(storeBookValidation, request);
 
+    book.id = nanoid()
     book.finished = book.readPage === book.pageCount;
+    book.insertedAt = new Date();
+    book.updatedAt = new Date();
 
-    return prismaClient.book.create({
-        data: book,
-        select: {
-            id: true,
-        }
-    });
+    books.push(book)
+
+    return book
 }
 
 const list = async (name, reading, finished) => {
-    let condition = {};
-    if(reading !== undefined) condition.reading = parseInt(reading) === 1;
-    if(finished !== undefined) condition.finished = parseInt(finished) === 1;
-    if(name !== undefined) condition.name = { contains: name };
+    let list = books
 
-    return prismaClient.book.findMany({
-        where: condition,
-        select: {
-            id: true,
-            name: true,
-            publisher: true
+    if(name !== undefined) {
+        list = list.filter(item => {
+            return item.name.toLowerCase().includes(name)
+        })
+    }
+
+    if(reading !== undefined) {
+        list = list.filter(item => {
+            return item.reading === (parseInt(reading) === 1)
+        })
+    }
+
+    if(finished !== undefined) {
+        list = list.filter(item => {
+            return item.finished === (parseInt(finished) === 1)
+        })
+    }
+
+    return list.map((item) => {
+        return {
+            id: item.id,
+            name: item.name,
+            publisher: item.publisher,
         }
-    });
+    })
 }
 
 const show = async (bookId) => {
     bookId = validate(showBookValidation, bookId);
 
-    const book = await prismaClient.book.findFirst({
-        where: {
-            id: bookId
-        },
-        select: {
-            id: true,
-            name: true,
-            year: true,
-            author: true,
-            summary: true,
-            publisher: true,
-            pageCount: true,
-            readPage: true,
-            finished: true,
-            reading: true,
-            insertedAt: true,
-            updatedAt: true,
-        }
-    });
+    const book = books.filter(item => {
+        return item.id === bookId;
+    })
 
-    if (!book) {
+    if (book.length !== 1) {
         throw new ResponseError(404, "Buku tidak ditemukan");
     }
 
-    return book;
+    return book[0];
 }
 
 const update = async (request) => {
-    const book = validate(updateBookValidation, request);
+    let book = validate(updateBookValidation, request);
 
-    const totalBookInDatabase = await prismaClient.book.count({
-        where: {
-            id: book.id
-        }
-    });
+    const totalBookInDatabase = books.filter(item => {
+        return item.id === book.id;
+    })
 
-    if (totalBookInDatabase !== 1) {
-        throw new ResponseError(404, "Buku tidak ditemukan");
+    if (totalBookInDatabase.length !== 1) {
+        throw new ResponseError(404, "Gagal memperbarui buku. Id tidak ditemukan");
     }
 
-    return prismaClient.book.update({
-        where: {
-            id: book.id
-        },
-        data: {
-            name: book.name,
-            year: book.year,
-            author: book.author,
-            summary: book.summary,
-            publisher: book.publisher,
-            pageCount: book.pageCount,
-            readPage: book.readPage,
-            reading: book.reading,
-            finished: book.readPage === book.pageCount
+    book.finished = book.readPage === book.pageCount;
+    book.updatedAt = new Date();
+    books = books.map(item => {
+        if (item.id === book.id) {
+            return {...item, ...book};
         }
+        return item;
     })
+
+    return book
 }
 
 const destroy = async (bookId) => {
     bookId = validate(deleteBookValidation, bookId);
 
-    const totalInDatabase = await prismaClient.book.count({
-        where: {
-            id: bookId
-        }
-    });
+    const existBook = books.filter(item => {
+        return item.id === bookId;
+    })
 
-    if (totalInDatabase !== 1) {
+    if (existBook.length !== 1) {
         throw new ResponseError(404, "Buku gagal dihapus. Id tidak ditemukan");
     }
 
-    return prismaClient.book.delete({
-        where: {
-            id: bookId
-        }
+    books = books.filter(item => {
+        return item.id !== bookId
     });
+
+    return existBook[0]
 }
 
 export default {

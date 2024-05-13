@@ -23,12 +23,12 @@ const storeBookValidation = Joi.object({
     return value;
 })
 
-const showBookValidation = Joi.number().positive().required().messages({
+const showBookValidation = Joi.string().required().messages({
     'number.base': 'Buku tidak ditemukan'
 });
 
 const updateBookValidation = Joi.object({
-    id: Joi.number().positive().required().messages({
+    id: Joi.string().required().messages({
         'number.base': 'Gagal memperbarui buku. Id tidak ditemukan'
     }),
     name: Joi.string().required().messages({
@@ -53,7 +53,7 @@ const updateBookValidation = Joi.object({
     return value;
 })
 
-const deleteBookValidation = Joi.number().positive().required().messages({
+const deleteBookValidation = Joi.string().required().messages({
     'number.base': 'Buku gagal dihapus. Id tidak ditemukan'
 });
 

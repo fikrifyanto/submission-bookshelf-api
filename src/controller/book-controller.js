@@ -36,7 +36,7 @@ const list = async (request, h) => {
 const show = async (request, h) => {
     try {
         const { bookId } = request.params;
-        const result = await bookService.show(bookId);
+        const result = await bookService.show(bookId)
 
         return h.response({
             status: "success",
@@ -45,6 +45,7 @@ const show = async (request, h) => {
             }
         }).code(200);
     } catch (error) {
+        console.log(error)
         return h.response({ status: 'fail', message: error.message }).code(error.status);
     }
 };
