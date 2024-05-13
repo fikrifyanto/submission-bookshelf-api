@@ -1,5 +1,4 @@
 import bookService from "../service/book-service.js";
-import Boom from '@hapi/boom'
 
 const store = async (request, h) => {
     try {

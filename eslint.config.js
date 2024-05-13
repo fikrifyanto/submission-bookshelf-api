@@ -1,6 +1,8 @@
-import config from "eslint-config-standard";
+import globals from "globals";
+import pluginJs from "@eslint/js";
 
 
 export default [
-  ...[].concat(config),
+  {languageOptions: { globals: globals.node }},
+  pluginJs.configs.recommended,
 ];
